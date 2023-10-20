@@ -51,8 +51,8 @@ echo "======================================================"
 echo
 echo "Getting node IDs"
 alice_address=$(run-in-node Alice "cli getinfo | jq -r .identity_pubkey")
-bob_address=$(run-in-node Bob "cli getinfo | jq -r .id")
-chan_address=$(run-in-node Chan "cli getinfo| jq -r .nodeId")
+bob_address=$(run-in-node Bob "cli getinfo | jq -r .identity_pubkey")
+chan_address=$(run-in-node Chan "cli getinfo| jq -r .identity_pubkey")
 dina_address=$(run-in-node Dina "cli getinfo | jq -r .identity_pubkey")
 
 # Show node IDs
@@ -67,9 +67,9 @@ echo "Waiting for Lightning nodes to sync the blockchain"
 echo -n "- Waiting for Alice chain sync..."
 wait-for-node Alice "cli getinfo | jq -e \".synced_to_chain == true\""
 echo -n "- Waiting for Bob chain sync..."
-wait-for-node Bob "cli getinfo | jq -e \".blockheight > 100\""
+wait-for-node Bob "cli getinfo | jq -e \".synced_to_chain == true\""
 echo -n "- Waiting for Chan chain sync..."
-wait-for-node Chan "cli getinfo | jq -e \".blockHeight > 100\""
+wait-for-node Chan "cli getinfo | jq -e \".synced_to_chain == true\""
 echo -n "- Waiting for Dina chain sync..."
 wait-for-node Dina "cli getinfo | jq -e \".synced_to_chain == true\""
 echo "All nodes synched to chain"
@@ -97,34 +97,34 @@ run-in-node Alice "cli listchannels | jq -e '.channels[] | select(.remote_pubkey
 	wait-for-node Alice "cli openchannel ${bob_address} 1000000"
 }
 echo "Bob to Chan"
-run-in-node Bob "cli listpeers | jq -e '.peers[] | select(.id == \"${chan_address}\")' > /dev/null" \
+run-in-node Bob "cli listpeers | jq -e '.peers[] | select(.pub_key == \"${chan_address}\")' > /dev/null" \
 && {
 	echo "- Bob already connected to Chan"
 } || {
 	echo "- Open connection from Bob's node to Chan's node"
 	wait-for-node Bob "cli connect ${chan_address}@Chan"
 }
-run-in-node Bob "cli listchannels | jq -e '.channels[] | select(.destination == \"${chan_address}\")' > /dev/null" \
+run-in-node Bob "cli listchannels | jq -e '.channels[] | select(.remote_pubkey == \"${chan_address}\")' > /dev/null" \
 && {
 	echo "- Bob->Chan channel already exists"
 } || {
 	echo "- Create payment channel Bob->Chan"
-	wait-for-node Bob "cli fundchannel ${chan_address} 1000000"
+	wait-for-node Bob "cli openchannel ${chan_address} 1000000"
 }
 echo "Chan to Dina"
-run-in-node Chan "cli peers | jq -e '.[] | select(.nodeId == \"${dina_address}\" and .state == \"CONNECTED\")' > /dev/null" \
+run-in-node Chan "cli listpeers | jq -e '.peers[] | select(.pub_key == \"${dina_address}\")' > /dev/null" \
 && {
 	echo "- Chan already connected to Dina"
 } || {
 	echo "- Open connection from Chan's node to Dina's node"
-	wait-for-node Chan "cli connect --uri=${dina_address}@Dina"
+	wait-for-node Chan "cli connect ${dina_address}@Dina"
 }
-run-in-node Chan "cli channels | jq -e '.[] | select(.nodeId == \"${dina_address}\" and .state == \"NORMAL\")' > /dev/null" \
+run-in-node Chan "cli listchannels | jq -e '.channels[] | select(.remote_pubkey == \"${dina_address}\")' > /dev/null" \
 && {
 	echo "- Chan->Dina channel already exists"
 } || {
 	echo "- Create payment channel Chan->Dina"
-	wait-for-node Chan "cli open --nodeId=${dina_address} --fundingSatoshis=1000000"
+	wait-for-node Chan "cli openchannel ${dina_address} 1000000"
 }
 echo "All channels created"
 echo "======================================================"
@@ -134,10 +134,10 @@ echo -n "- Waiting for Alice channel confirmation..."
 wait-for-node Alice "cli listchannels | jq -e '.channels[] | select(.remote_pubkey == \"${bob_address}\" and .active == true)'"
 echo "- Alice->Bob connected"
 echo -n "- Waiting for Bob channel confirmation..."
-wait-for-node Bob "cli listchannels | jq -e '.channels[] | select(.destination == \"${chan_address}\" and .active == true)'"
+wait-for-node Bob "cli listchannels | jq -e '.channels[] | select(.remote_pubkey == \"${chan_address}\" and .active == true)'"
 echo "- Bob->Chan connected"
 echo -n "- Waiting for Chan channel confirmation..."
-wait-for-node Chan "cli channels | jq -e '.[] | select (.nodeId == \"${dina_address}\" and .state == \"NORMAL\")' > /dev/null"
+wait-for-node Chan "cli listchannels | jq -e '.channels[] | select (.remote_pubkey == \"${dina_address}\" and .active == true)'"
 echo "- Chan->Dina connected"
 echo "All channels confirmed"
 
