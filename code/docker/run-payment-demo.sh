@@ -26,17 +26,17 @@ function wait-for-node () {
 	wait-for-cmd run-in-node $1 "${@:2}"
 }
 
-
+# carlosalvaradodock/bitcoind-proyecto
 # Start the demo
 echo "Starting Payment Demo"
 
 echo "======================================================"
 echo
 echo "Waiting for nodes to startup"
-echo -n "- Waiting for bitcoind startup..."
-wait-for-node bitcoind "cli getblockchaininfo | jq -e \".blocks > 101\""
-echo -n "- Waiting for bitcoind mining..."
-wait-for-node bitcoind "cli getbalance | jq -e \". > 50\""
+echo -n "- Waiting for bitcoind-proyecto-prueba startup..."
+wait-for-node bitcoind-proyecto-prueba "cli getblockchaininfo | jq -e \".blocks > 101\""
+echo -n "- Waiting for bitcoind-proyecto-prueba mining..."
+wait-for-node bitcoind-proyecto-prueba "cli getbalance | jq -e \". > 50\""
 echo -n "- Waiting for Alice startup..."
 wait-for-node Alice "cli getinfo"
 echo -n "- Waiting for Bob startup..."

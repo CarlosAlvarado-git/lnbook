@@ -4,10 +4,10 @@ networks:
 
 services:
   bitcoind:
-    container_name: bitcoind
-    build:
-        context: bitcoind
-    image: lnbook/bitcoind:latest
+    container_name: bitcoind-proyecto-prueba
+    # build:
+    #     context: bitcoind
+    image: carlosalvaradodock/bitcoind-proyecto
     networks:
       - lnnet
     expose:
@@ -15,7 +15,7 @@ services:
       - "12005"
       - "12006"
     restart: always
-
+  
   Alice:
     container_name: Alice
     build:
