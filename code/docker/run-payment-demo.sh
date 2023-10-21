@@ -159,19 +159,19 @@ run-in-node Alice "cli queryroutes --dest \"${dina_address}\" --amt 10000" > /de
 	echo "Alice knows about all the channels"
 }
 
-echo "======================================================"
-echo
-echo "Get 10k sats invoice from Dina"
-dina_invoice=$(run-in-node Dina "cli addinvoice 10000 | jq -r .payment_request")
-echo "- Dina invoice: "
-echo ${dina_invoice}
+# echo "======================================================"
+# echo
+# echo "Get 10k sats invoice from Dina"
+# dina_invoice=$(run-in-node Dina "cli addinvoice 10000 | jq -r .payment_request")
+# echo "- Dina invoice: "
+# echo ${dina_invoice}
 
-echo "======================================================"
-echo
-echo "Attempting payment from Alice to Dina"
-run-in-node Alice "cli payinvoice --json --force ${dina_invoice} | jq -e '.failure_reason == \"FAILURE_REASON_NONE\"'" > /dev/null && {
-	echo "Successful payment!"
-} ||
-{
-	echo "Payment failed"
-}
+# echo "======================================================"
+# echo
+# echo "Attempting payment from Alice to Dina"
+# run-in-node Alice "cli payinvoice --json --force ${dina_invoice} | jq -e '.failure_reason == \"FAILURE_REASON_NONE\"'" > /dev/null && {
+# 	echo "Successful payment!"
+# } ||
+# {
+# 	echo "Payment failed"
+# }
