@@ -3,6 +3,6 @@ function run-in-node () {
 }
 
 echo "Get 10k sats invoice from Dina"
-dina_invoice=$(run-in-node Dina "cli addinvoice 10 | jq -r .payment_request")
+invoice=$(run-in-node Dina "cli addinvoice 10000 | jq -r .payment_request")
 echo "- Dina invoice: "
-echo ${dina_invoice}
+echo ${invoice}

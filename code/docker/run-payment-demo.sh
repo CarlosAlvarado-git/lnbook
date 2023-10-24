@@ -159,6 +159,59 @@ run-in-node Alice "cli queryroutes --dest \"${dina_address}\" --amt 10000" > /de
 	echo "Alice knows about all the channels"
 }
 
+# Bob -> Alice
+# conexión
+run-in-node Bob "cli listpeers | jq -e '.peers[] | select(.pub_key == \"${alice_address}\")' > /dev/null" \
+&& {
+	echo "- Bob already connected to Alice"
+} || {
+	echo "- Open connection from Bob node to Alice's node"
+	wait-for-node Bob "cli connect ${alice_address}@Alice"
+}
+#ruta de pago
+run-in-node Bob "cli listchannels | jq -e '.channels[] | select(.remote_pubkey == \"${alice_address}\")' > /dev/null" \
+&& {
+	echo "- Bob->Alice channel already exists"
+} || {
+	echo "- Create payment channel Bob->Alice"
+	wait-for-node Bob "cli openchannel ${alice_address} 1000000"
+}
+# Chan -> Bob
+# conexión
+run-in-node Chan "cli listpeers | jq -e '.peers[] | select(.pub_key == \"${bob_address}\")' > /dev/null" \
+&& {
+	echo "- Chan already connected to Bob"
+} || {
+	echo "- Open connection from Chan node to Bob's node"
+	wait-for-node Chan "cli connect ${bob_address}@Bob"
+}
+#ruta de pago
+run-in-node Chan "cli listchannels | jq -e '.channels[] | select(.remote_pubkey == \"${bob_address}\")' > /dev/null" \
+&& {
+	echo "- Chan->Bob channel already exists"
+} || {
+	echo "- Create payment channel Chan->Bob"
+	wait-for-node Chan "cli openchannel ${bob_address} 1000000"
+}
+#Dina -> Chan
+# conexión
+run-in-node Dina "cli listpeers | jq -e '.peers[] | select(.pub_key == \"${chan_address}\")' > /dev/null" \
+&& {
+	echo "- Dina already connected to Chan"
+} || {
+	echo "- Open connection from Dina node to Chan's node"
+	wait-for-node Dina "cli connect ${chan_address}@Chan"
+}
+#ruta de pago
+run-in-node Dina "cli listchannels | jq -e '.channels[] | select(.remote_pubkey == \"${chan_address}\")' > /dev/null" \
+&& {
+	echo "- Dina->Chan channel already exists"
+} || {
+	echo "- Create payment channel Dina->Chan"
+	wait-for-node Dina "cli openchannel ${chan_address} 1000000"
+}
+
+
 # echo "======================================================"
 # echo
 # echo "Get 10k sats invoice from Dina"
